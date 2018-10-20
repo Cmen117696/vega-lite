@@ -1,13 +1,14 @@
 import {selector as parseSelector} from 'vega-event-selector';
 import {hasOwnProperty, isString, stringValue} from 'vega-util';
-import {SelectionComponent, STORE} from '.';
+import {SelectionComponent, STORE, forEachSelection} from '.';
 import {LogicalOperand} from '../../logical';
 import {SelectionDef} from '../../selection';
 import {Dict, duplicate, logicalExpr, varName} from '../../util';
-import {DataFlowNode} from '../data/dataflow';
+import {DataFlowNode, OutputNode} from '../data/dataflow';
 import {Model} from '../model';
 import {UnitModel} from '../unit';
 import {forEachTransform} from './transforms/transforms';
+import {FilterNode} from '../data/filter';
 
 export function parseUnitSelection(model: UnitModel, selDefs: Dict<SelectionDef>) {
   const selCmpts: Dict<SelectionComponent<any /* this has to be "any" so typing won't fail in test files*/>> = {};
@@ -92,4 +93,17 @@ export function parseSelectionPredicate(
   return (
     (stores.length ? '!(' + stores.map(s => `length(data(${s}))`).join(' || ') + ') || ' : '') + `(${predicateStr})`
   );
+}
+
+export function materializeSelections(model: UnitModel, main: OutputNode) {
+  forEachSelection(model, selCmpt => {
+    const selection = selCmpt.name;
+    const lookupName = model.getName(`lookup_${selection}`);
+    model.component.data.outputNodes[lookupName] = selCmpt.materialized = new OutputNode(
+      new FilterNode(main, model, {selection}),
+      lookupName,
+      'lookup',
+      model.component.data.outputNodeRefCounts
+    );
+  });
 }
