@@ -17,11 +17,6 @@
       "source": "source_0",
       "transform": [
         {
-          "type": "formula",
-          "as": "yearmonth_date",
-          "expr": "datetime(year(datum[\"date\"]), month(datum[\"date\"]), 1, 0, 0, 0, 0)"
-        },
-        {
           "type": "aggregate",
           "groupby": ["yearmonth_date"],
           "ops": ["sum"],

@@ -9,26 +9,15 @@
     {
       "name": "source_0",
       "url": "data/seattle-weather.csv",
-      "format": {"type": "csv", "parse": {"date": "date"}},
-      "transform": [
-        {
-          "type": "formula",
-          "as": "month_date",
-          "expr": "datetime(0, month(datum[\"date\"]), 1, 0, 0, 0, 0)"
-        }
-      ]
+      "format": {"type": "csv", "parse": {"date": "date"}}
     },
     {
       "name": "data_0",
       "source": "source_0",
       "transform": [
         {
-          "type": "filter",
-          "expr": "!(length(data(\"brush_store\"))) || (vlSelectionTest(\"brush_store\", datum))"
-        },
-        {
           "type": "aggregate",
-          "groupby": [],
+          "groupby": ["month_date"],
           "ops": ["mean"],
           "fields": ["precipitation"],
           "as": ["mean_precipitation"]
@@ -40,8 +29,17 @@
       "source": "source_0",
       "transform": [
         {
+          "type": "formula",
+          "as": "month_date",
+          "expr": "datetime(0, month(datum[\"date\"]), 1, 0, 0, 0, 0)"
+        },
+        {
+          "type": "filter",
+          "expr": "!(length(data(\"brush_store\"))) || (vlSelectionTest(\"brush_store\", datum))"
+        },
+        {
           "type": "aggregate",
-          "groupby": ["month_date"],
+          "groupby": [],
           "ops": ["mean"],
           "fields": ["precipitation"],
           "as": ["mean_precipitation"]
@@ -259,7 +257,7 @@
       "name": "layer_0_marks",
       "type": "rect",
       "style": ["bar"],
-      "from": {"data": "data_1"},
+      "from": {"data": "data_0"},
       "encode": {
         "update": {
           "fill": {"value": "#4c78a8"},
@@ -281,7 +279,7 @@
       "name": "layer_1_marks",
       "type": "rule",
       "style": ["rule"],
-      "from": {"data": "data_0"},
+      "from": {"data": "data_1"},
       "encode": {
         "update": {
           "stroke": {"value": "firebrick"},
@@ -339,7 +337,7 @@
     {
       "name": "x",
       "type": "band",
-      "domain": {"data": "data_1", "field": "month_date", "sort": true},
+      "domain": {"data": "data_0", "field": "month_date", "sort": true},
       "range": {"step": {"signal": "x_step"}},
       "paddingInner": 0.1,
       "paddingOuter": 0.05
@@ -349,8 +347,8 @@
       "type": "linear",
       "domain": {
         "fields": [
-          {"data": "data_1", "field": "mean_precipitation"},
-          {"data": "data_0", "field": "mean_precipitation"}
+          {"data": "data_0", "field": "mean_precipitation"},
+          {"data": "data_1", "field": "mean_precipitation"}
         ]
       },
       "range": [{"signal": "height"}, 0],
