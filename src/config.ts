@@ -210,7 +210,7 @@ export interface Config
    */
   projection?: ProjectionConfig;
 
-  /** An object hash that defines key-value mappings to determine default properties for marks with a given [style](https://vega.github.io/vega-lite/docs/mark.html#mark-def).  The keys represent styles names; the values have to be valid [mark configuration objects](https://vega.github.io/vega-lite/docs/mark.html#config).  */
+  /** An object hash that defines key-value mappings to determine default properties for marks with a given [style](https://vega.github.io/vega-lite/docs/mark.html#mark-def). The keys represent styles names; the values have to be valid [mark configuration objects](https://vega.github.io/vega-lite/docs/mark.html#config).  */
   style?: StyleConfigIndex;
 }
 
@@ -296,6 +296,7 @@ export function initConfig(config: Config) {
 const MARK_STYLES = ['view', ...PRIMITIVE_MARKS] as ('view' | Mark)[];
 
 const VL_ONLY_CONFIG_PROPERTIES: (keyof Config)[] = [
+  'background',
   'padding',
   'facet',
   'concat',
@@ -372,6 +373,8 @@ export function stripAndRedirectConfig(config: Config) {
   // Redirect config.title -- so that title config do not
   // affect header labels, which also uses `title` directive to implement.
   redirectConfig(config, 'title', 'group-title');
+
+  // Remove background config since we apply it to the spec.
 
   // Remove empty config objects
   for (const prop in config) {
